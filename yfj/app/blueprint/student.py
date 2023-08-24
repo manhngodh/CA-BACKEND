@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from app.database import db
-from app.models import Student
+from app.models import Student, SchoolPerformance
 import requests
 
 student_blueprint = Blueprint('student', __name__, url_prefix='/students')
@@ -15,6 +15,44 @@ def fetch_job_earnings():
     except Exception as e:
         # app.logger.error(f"Error fetching job earnings: {e}")
         return None
+
+
+@app.route('/<string:people_id>/advice', methods=['GET', 'POST'])
+def student_advice(people_id):
+    student = Student.query.filter_by(people_id=people_id).first()
+    if not student:
+        return jsonify({'message': 'Student not found'}), 404
+
+    if request.method == 'POST':
+        school_performance_data = request.json.get('school_performance')
+        if not school_performance_data:
+            return jsonify({'message': 'School performance data missing'}), 400
+
+        # Create or update the associated SchoolPerformance record
+        school_performance = SchoolPerformance.query.filter_by(people_id=people_id).first()
+        if school_performance:
+            school_performance.school_performance = school_performance_data
+        else:
+            school_performance = SchoolPerformance(people_id=people_id, school_performance=school_performance_data)
+            db.session.add(school_performance)
+
+        db.session.commit()
+
+        return jsonify({'message': 'School performance data saved successfully'}), 200
+
+    elif request.method == 'GET':
+        school_performance = student.school_performance_data.first()
+        if not school_performance:
+            return jsonify({'message': 'School performance data missing'}), 400
+
+        # Logic to recommend 3 most appropriate jobs based on school performance
+        # Combine school_performance with job earnings data for recommendation
+
+        # For demonstration purposes, we'll return a placeholder recommendation
+        recommended_jobs = ["Job A", "Job B", "Job C"]
+
+        return jsonify({'recommended_jobs': recommended_jobs}), 200
+
 
 @student_blueprint.route('/<encrypted_people_id>/advices', methods=['POST'])
 def get_advice(encrypted_people_id):

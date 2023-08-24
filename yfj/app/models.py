@@ -1,46 +1,25 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
-from app.database import db
+from app import db
+from sqlalchemy.dialects.postgresql import JSON
 
-
-class Test(db.Model):
-    __tablename__ = 'test'
-    id = Column(Integer, primary_key=True)
-
-class Student(db.Model):
+class People(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    encrypted_people_id = db.Column(db.String(255), unique=True)
-    math_score = db.Column(db.Float)
-    physics_score = db.Column(db.Float)
-    chemistry_score = db.Column(db.Float)
-    biology_score = db.Column(db.Float)
-    literature_score = db.Column(db.Float)
-    history_score = db.Column(db.Float)
-    geography_score = db.Column(db.Float)
-    philosophy_score = db.Column(db.Float)
-    art_score = db.Column(db.Float)
-    foreign_language_score = db.Column(db.Float)
-    
-    def to_dict(self):
-        return {
-            "id": self.id,
-            "math_score": self.math_score,
-            "physics_score": self.physics_score,
-            "chemistry_score": self.chemistry_score,
-            "biology_score": self.biology_score,
-            "literature_score": self.literature_score,
-            "history_score": self.history_score,
-            "geography_score": self.geography_score,
-            "philosophy_score": self.philosophy_score,
-            "art_score": self.art_score,
-            "foreign_language_score": self.foreign_language_score
-        }
+    people_id = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    # ... other common attributes ...
+
+class Student(People):
+    __tablename__ = 'students'
+    # ... student-specific attributes ...
+
+class Volunteer(People):
+    __tablename__ = 'volunteers'
+    job_data = db.Column(JSON)
+    # ... volunteer-specific attributes ...
 
 
-class Volunteer(db.Model):
+class SchoolPerformance(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    school_performance_id = db.Column(db.Integer, db.ForeignKey('student.id'))
-    job_name = db.Column(db.String(100))
-
-class JobEarnings(db.Model):
-    job_name = db.Column(db.String(100), primary_key=True)
-    average_earnings = db.Column(db.Float)
+    people_id = db.Column(db.String(255), db.ForeignKey('people.people_id'), nullable=False)
+    school_performance = db.Column(JSON)
+    person = db.relationship('People', backref=db.backref('school_performance_data', lazy=True))
