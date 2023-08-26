@@ -35,6 +35,9 @@ def create_app(test_config: dict = {}) -> Flask:
     init_database(app)
     init_blueprints(app)
 
+    # Configure the logger
+    configure_logging(app)
+
     return app
 
 
@@ -83,7 +86,43 @@ def init_blueprints(app: Flask) -> None:
     app.register_blueprint(index.bp)
 
 
-    from .blueprint.student import student_blueprint
-    app.register_blueprint(student_blueprint)
-    from .blueprint.volunteer import volunteer_blueprint
-    app.register_blueprint(volunteer_blueprint)
+    from .blueprint.people import people_bp
+    app.register_blueprint(people_bp)
+ 
+    from .blueprint.student import student_bp
+    app.register_blueprint(student_bp)
+
+    from .blueprint.volunteer import volunteer_bp
+    app.register_blueprint(volunteer_bp)
+
+
+import logging
+
+def configure_logging(app: Flask):
+    # Set the log level
+    log_level = logging.INFO  # You can adjust the log level as needed
+
+    # Create a logger instance
+    logger = logging.getLogger(__name__)
+    logger.setLevel(log_level)
+
+    # Create a file handler
+    log_file = 'app.log'  # Change to the desired log file name
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(log_level)
+
+    # Create a console handler (for printing logs to console)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+
+    # Create a formatter and set it for the handlers
+    log_format = '%(asctime)s - %(levelname)s - %(message)s'
+    formatter = logging.Formatter(log_format)
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    app.logger.addHandler(logger)

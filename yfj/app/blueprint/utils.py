@@ -1,22 +1,33 @@
-from cryptography.fernet import Fernet
+import hashlib
+# from app.settings import SECRET_KEY_FERNET
 
-# Generate a secret key for encryption (keep this secure!)
-SECRET_KEY = b'SomeSuperSecretKey123'
+"""
+Fernet.generate_key()
+b'QaBguu2w72LwQxHTg5KWa77gVeez5d_MGm2v5KN9ucI='
+"""
+# SECRET_KEY_FERNET = b'QaBguu2w72LwQxHTg5KWa77gVeez5d_MGm2v5KN9ucI='
 
 def encrypt_people_id(people_id):
-    cipher_suite = Fernet(SECRET_KEY)
-    encrypted_people_id = cipher_suite.encrypt(people_id.encode())
-    return encrypted_people_id
+    hashed_people_id = hashlib.sha256(people_id.encode()).hexdigest()
+    return hashed_people_id
+# def encrypt_people_id(people_id):
+#     print("SECRET_KEY_FERNET", SECRET_KEY_FERNET)
+#     cipher_suite = Fernet(SECRET_KEY_FERNET)
+#     encrypted_people_id = cipher_suite.encrypt(people_id.encode())
+#     return encrypted_people_id.decode()
 
-def decrypt_people_id(encrypted_people_id):
-    cipher_suite = Fernet(SECRET_KEY)
-    decrypted_people_id = cipher_suite.decrypt(encrypted_people_id).decode()
-    return decrypted_people_id
+# def decrypt_people_id(encrypted_people_id):
+#     cipher_suite = Fernet(SECRET_KEY_FERNET)
+#     decrypted_people_id = cipher_suite.decrypt(encrypted_people_id).decode()
+#     return decrypted_people_id
 
-# Example usage
-people_id = "12345"
-encrypted_id = encrypt_people_id(people_id)
-print("Encrypted:", encrypted_id)
 
-decrypted_id = decrypt_people_id(encrypted_id)
-print("Decrypted:", decrypted_id)
+if __name__ == "__main__":
+    # Example usage
+    people_ids = ["manh-nx", "ha-pn", "duc-nx", "huong-th"]
+    for people_id in people_ids:
+        encrypted_id = encrypt_people_id(people_id)
+        print(people_id, encrypted_id)
+
+    # decrypted_id = decrypt_people_id(encrypted_id)
+    # print("Decrypted:", decrypted_id)
